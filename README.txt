@@ -1,0 +1,3 @@
+- Need to have public key ol8_id_ed25519.pub. MacOs default SSH algorithm is ED25519, not the traditional RSA.
+- To access host Docker CLI, Rancher Desktop must have administration access. 
+- OL8 shoud run run as non-admin user.  See launch-ol8.sh
