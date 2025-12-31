@@ -1,0 +1,28 @@
+FROM ol8-cli
+
+ARG GRAFANA_VERSION=12.3.1
+ARG GRAFANA_BUILD=20271043721
+ARG GRAFANA_ARCH=arm64
+
+RUN dnf install -y ca-certificates shadow-utils \
+    && dnf install -y "https://dl.grafana.com/grafana-enterprise/release/${GRAFANA_VERSION}/grafana-enterprise_${GRAFANA_VERSION}_${GRAFANA_BUILD}_linux_${GRAFANA_ARCH}.rpm" \
+    && dnf clean all
+
+RUN id grafana >/dev/null 2>&1 || useradd --system --create-home --home-dir /var/lib/grafana --shell /sbin/nologin grafana
+
+RUN mkdir -p /etc/grafana/provisioning
+
+COPY provisioning/ /etc/grafana/provisioning/
+
+USER grafana
+
+ENV GF_PATHS_HOME=/usr/share/grafana \
+    GF_PATHS_CONFIG=/etc/grafana/grafana.ini \
+    GF_PATHS_DATA=/var/lib/grafana \
+    GF_PATHS_LOGS=/var/log/grafana \
+    GF_PATHS_PLUGINS=/var/lib/grafana/plugins \
+    GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/sbin/grafana-server","--homepath=/usr/share/grafana","--config=/etc/grafana/grafana.ini","--packaging=rpm"]
